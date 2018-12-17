@@ -60,7 +60,13 @@ def main(argv):
 
                 sampler = Sampler(model_json_path=model_json_file,
                                   model_weights_path = model_weights_file)
-                converted = sampler.convert_single_image(output_folder, png_path=image, print_generated_output=print_generated_output, get_sentence_bleu=print_bleu_score, original_gui_filepath=original_gui_filepath, style=style)
+                converted = sampler \
+                    .convert_single_image(output_folder, \
+                                          png_path=image, \
+                                          print_generated_output=print_generated_output, \
+                                          get_sentence_bleu=print_bleu_score, \
+                                          original_gui_filepath=original_gui_filepath, \
+                                          style=style)
 
                 if converted:
                     data['success'] = True
