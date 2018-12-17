@@ -62,6 +62,18 @@ class Sampler:
             print("BLEU score: {}".format(Evaluator.get_sentence_bleu(original_gui_filepath, gui_output_filepath)))
 
 
+    def convert_single_image_file(self, output_folder, png, print_generated_output, get_sentence_bleu, original_gui_filepath, style):
+        # Generate GUI
+        print("Generating code for sample ID {}".format(sample_id))
+        generated_gui, gui_output_filepath= self.generate_gui_from_image(png, print_generated_output=print_generated_output, output_folder=output_folder, sample_id=sample_id)
+
+        # Generate HTML
+        generated_html = self.generate_html(generated_gui, sample_id, print_generated_output=print_generated_output, output_folder=output_folder, style=style)
+
+        # Get BLEU
+        if get_sentence_bleu == 1 and (original_gui_filepath is not None):
+            print("BLEU score: {}".format(Evaluator.get_sentence_bleu(original_gui_filepath, gui_output_filepath)))
+
     ##########################################
     ####### PRIVATE METHODS ##################
     ##########################################
@@ -78,6 +90,34 @@ class Sampler:
     def generate_gui(self, png_path, print_generated_output, sample_id, output_folder):
         test_img_preprocessor = ImagePreprocessor()
         img_features = test_img_preprocessor.get_img_features(png_path)
+
+        in_text = '<START> '
+        photo = np.array([img_features])
+        for i in range(150):
+            sequence = self.tokenizer.texts_to_sequences([in_text])[0]
+            sequence = pad_sequences([sequence], maxlen=MAX_LENGTH)
+            yhat = self.model.predict([photo, sequence], verbose=0)
+            yhat = np.argmax(yhat)
+            word = self.word_for_id(yhat)
+            if word is None:
+                break
+            in_text += word + ' '
+            if word == '<END>':
+                break
+
+        generated_gui = in_text.split()
+
+        if print_generated_output is 1:
+            print("\n=========\nGenerated GUI code:")
+            print(generated_gui)
+
+        gui_output_filepath = self.write_gui_to_disk(generated_gui, sample_id, output_folder)
+
+        return generated_gui, gui_output_filepath
+
+    def generate_gui_from_image(self, png, print_generated_output, sample_id, output_folder):
+        test_img_preprocessor = ImagePreprocessor()
+        img_features = test_img_preprocessor.get_img_features_from_file(png)
 
         in_text = '<START> '
         photo = np.array([img_features])
@@ -129,9 +169,3 @@ class Sampler:
         with open(gui_output_filepath, 'w') as out_f:
             out_f.write(' '.join(gui_array))
         return gui_output_filepath
-
-
-
-
-
-

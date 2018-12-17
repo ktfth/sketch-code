@@ -29,6 +29,11 @@ class ImagePreprocessor:
         assert(img_features.shape == (256,256,3))
         return img_features
 
+    def get_img_features_from_file(self, png):
+        img_features = self.resize_img_file(png)
+        assert(img_features.shape == (256,256,3))
+        return img_features
+
 
    ##########################################
    ####### PRIVATE METHODS ##################
@@ -92,36 +97,13 @@ class ImagePreprocessor:
         bg_img /= 255
         return bg_img
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    def resize_img_file(self, png):
+        img_rgb = png
+        img_grey = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
+        img_adapted = cv2.adaptiveThreshold(img_grey, 255, cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY, 101, 9)
+        img_stacked = np.repeat(img_adapted[...,None],3,axis=2)
+        resized = cv2.resize(img_stacked, (200,200), interpolation=cv2.INTER_AREA)
+        bg_img = 255 * np.ones(shape=(256,256,3))
+        bg_img[27:227, 27:227,:] = resized
+        bg_img /= 255
+        return bg_img
