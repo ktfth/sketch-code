@@ -63,6 +63,7 @@ class Sampler:
 
 
     def convert_single_image_file(self, output_folder, png, print_generated_output, get_sentence_bleu, original_gui_filepath, style):
+        sample_id = 'decode'
         # Generate GUI
         print("Generating code for sample ID {}".format(sample_id))
         generated_gui, gui_output_filepath= self.generate_gui_from_image(png, print_generated_output=print_generated_output, output_folder=output_folder, sample_id=sample_id)
@@ -73,6 +74,8 @@ class Sampler:
         # Get BLEU
         if get_sentence_bleu == 1 and (original_gui_filepath is not None):
             print("BLEU score: {}".format(Evaluator.get_sentence_bleu(original_gui_filepath, gui_output_filepath)))
+
+        return generated_html
 
     ##########################################
     ####### PRIVATE METHODS ##################
@@ -157,6 +160,8 @@ class Sampler:
             with open(output_filepath, 'w') as output_file:
                 output_file.write(compiled_website)
                 print("Saved generated HTML to {}".format(output_filepath))
+
+        return compiled_website
 
     def word_for_id(self, integer):
         for word, index in self.tokenizer.word_index.items():

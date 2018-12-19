@@ -40,7 +40,7 @@ def main(argv):
     options = parser.parse_args(argv[1:])
 
     def decode(request):
-        data = {'success': False}
+        data = {'success': False, 'html': ''}
 
         if request.method == 'POST':
             if request.POST.__contains__('image'):
@@ -61,15 +61,16 @@ def main(argv):
                 sampler = Sampler(model_json_path=model_json_file,
                                   model_weights_path = model_weights_file)
                 converted = sampler \
-                    .convert_single_image(output_folder, \
-                                          png_path=image, \
-                                          print_generated_output=print_generated_output, \
+                    .convert_single_image_file(output_folder, \
+                                          png=image, \
+                                          print_generated_output=0, \
                                           get_sentence_bleu=print_bleu_score, \
                                           original_gui_filepath=original_gui_filepath, \
                                           style=style)
 
                 if converted:
                     data['success'] = True
+                    data['html'] = converted
 
         return data
 

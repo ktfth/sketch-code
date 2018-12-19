@@ -98,7 +98,8 @@ class ImagePreprocessor:
         return bg_img
 
     def resize_img_file(self, png):
-        img_rgb = png
+        img_rgb = png.convert('RGB')
+        img_rgb = np.array(img_rgb)
         img_grey = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
         img_adapted = cv2.adaptiveThreshold(img_grey, 255, cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY, 101, 9)
         img_stacked = np.repeat(img_adapted[...,None],3,axis=2)
